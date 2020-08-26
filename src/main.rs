@@ -1,6 +1,7 @@
 use std::env;
 use std::process;
 use rand::Rng;
+use std::fmt; 
 
 #[derive(Debug)]
 struct Config {
@@ -21,13 +22,9 @@ fn main() {
         eprintln!("Problem with parsing arguments: {}", err);
         process::exit(1);
     });
-    println!("Created config:");
-    println!("{:?}", config);
 
     let secret = Secret::new(&config);
-    println!("Created secret!");
-    println!("{:?}", secret);
-    
+    println!("{}", secret); 
 }
 
 
@@ -70,25 +67,36 @@ impl Secret {
         //Generate random k-1 numbers of the polynomial
         for _i in 1.. config.k {
             let number = rng.gen::<u16>();
-            //println!("Random u16: {}", number); 
             fx.push(number.into());
         }
-
-        //println!("Polynomial: {:?}", fx);
 
         //Generate secret points
         for i in 1..config.n {
             let mut power = 0;
             let mut sum = 0;
             for x in fx.iter() {
-                //println!("{} * {}^{}", x, i, power);
                 sum += x * ((i.pow(power)) as u128);
                 power += 1;
             }
-            //println!("Point: ({}, {})", i, sum);
             points.push( (i as u128, sum) );
         }
-        
         Secret { fx, points,}
+    }
+}
+
+//Make the display more appealing
+impl fmt::Display for Secret {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        let mut polynomial = String::from("");
+        let mut x = 0;
+        for i in self.fx.iter() {
+            //println!("{}*x^{}", i, x);
+            polynomial.push_str(&format!("{}*x^{}", i, x));
+            if self.fx.len()-1 != x {
+                polynomial.push_str(" + ");
+            }
+            x += 1;
+        }
+        write!(f, "Polynomial: {}\nShare points: {:?}", polynomial, self.points)
     }
 }
