@@ -22,7 +22,7 @@ fn main() {
         eprintln!("Problem with parsing arguments: {}", err);
         process::exit(1);
     });
-
+    //Create the Secret struct and print out the results
     let secret = Secret::new(&config);
     println!("{}", secret); 
 }
@@ -71,7 +71,7 @@ impl Secret {
         }
 
         //Generate secret points
-        for i in 1..config.n {
+        for i in 1..config.n+1 {
             let mut power = 0;
             let mut sum = 0;
             for x in fx.iter() {
@@ -90,13 +90,12 @@ impl fmt::Display for Secret {
         let mut polynomial = String::from("");
         let mut x = 0;
         for i in self.fx.iter() {
-            //println!("{}*x^{}", i, x);
             polynomial.push_str(&format!("{}*x^{}", i, x));
             if self.fx.len()-1 != x {
                 polynomial.push_str(" + ");
             }
             x += 1;
         }
-        write!(f, "Polynomial: {}\nShare points: {:?}", polynomial, self.points)
+        write!(f, "===== Output ====\nPolynomial: {}\nShare points: {:?}\n=================", polynomial, self.points)
     }
 }
